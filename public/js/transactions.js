@@ -976,22 +976,25 @@ function latr_(url) {
 
     $.ajax({
         type: 'get',
-        url: url ? url : appRoot + "transactions/latr_/",
-        data: { orderBy: orderBy, orderFormat: orderFormat, limit: limit },
-
+        url: url ? url : appRoot + "transactions/latr_/1", // Default to page 1
+        
+        data: {
+            orderBy: orderBy,
+            orderFormat: orderFormat,
+            limit: limit
+        },
         success: function (returnedData) {
             hideFlashMsg();
-
-            $("#transListTable").html(returnedData.transTable);
+            $("#transListTable").html(returnedData.transTable); // Update table content
         },
-
         error: function () {
-
+            console.error("Failed to load transactions.");
         }
     });
 
     return false;
 }
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

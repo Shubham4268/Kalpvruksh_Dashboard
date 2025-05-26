@@ -99,10 +99,10 @@ class Item extends CI_Model
      * @return boolean
      */
     public function itemsearch($value)
-{
-    $escapedValue = $this->db->escape_like_str($value);
+    {
+        $escapedValue = $this->db->escape_like_str($value);
 
-    $q = "
+        $q = "
         SELECT items.*, 
                categories.category_name AS category_name, 
                manufacturers.mnf_name AS manufacturer_name, 
@@ -120,10 +120,10 @@ class Item extends CI_Model
             OR admin.first_name LIKE '%{$escapedValue}%'
     ";
 
-    $run_q = $this->db->query($q);
+        $run_q = $this->db->query($q);
 
-    return $run_q->num_rows() > 0 ? $run_q->result() : FALSE;
-}
+        return $run_q->num_rows() > 0 ? $run_q->result() : FALSE;
+    }
 
 
 
@@ -317,5 +317,12 @@ class Item extends CI_Model
         $run_q = $this->db->get('items');
 
         return $run_q->num_rows() ? $run_q->row()->cumPrice : FALSE;
+    }
+
+    public function getItemByName($name)
+    {
+        $this->db->where('name', $name);
+        $query = $this->db->get('items'); // change table name if needed
+        return $query->row_array();
     }
 }

@@ -235,6 +235,18 @@ defined('BASEPATH') or exit('');
   </div>
   <!-- End of modal-->
 
+  <!-- Item label modal -->
+  <div id="itemLabelModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="itemLabel">
+                <!-- label content loads here -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End of item label modal-->
+
 
   <!--Login Modal-->
   <div class="modal fade" role='dialog' data-backdrop='static' id='logInModal'>

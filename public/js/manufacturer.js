@@ -236,21 +236,24 @@ function debounce(func, delay) {
 
 // Load Manufacturers List Table
 function lmlt(url) {
-    var orderBy = $("#manufacturerListSortBy").val().split("-")[0];
-    var orderFormat = $("#manufacturerListSortBy").val().split("-")[1];
-    var limit = $("#manufacturerListPerPage").val();
+    const sortVal = $("#manufacturerListSortBy").val();
+    const limit = $("#manufacturerListPerPage").val();
 
+    // Provide safe fallback if sortVal is malformed or empty
+    const [orderBy, orderFormat] = sortVal ? sortVal.split("-") : ["manufacturer_name", "ASC"];
 
     $.ajax({
         type: 'get',
-        url: url ? url : appRoot + "Manufacturer/lmlt/",
-        data: { orderBy: orderBy, orderFormat: orderFormat, limit: limit },
-
+        url: url ? url : appRoot + "Manufacturer/lmlt/1", // default to page 1
+        data: {
+            orderBy: orderBy,
+            orderFormat: orderFormat,
+            limit: limit
+        },
         success: function (returnedData) {
             hideFlashMsg();
             $("#manufacturerListTable").html(returnedData.manufacturerListTable);
         },
-
         error: function (xhr, status, error) {
             console.error("AJAX Error:", status, error);
             changeFlashMsgContent("Failed to load manufacturers. Try again.", "", "red", "");

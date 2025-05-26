@@ -123,7 +123,7 @@ $(document).ready(function () {
         };
 
         console.log(formData);
-        
+
         $.ajax({
             url: 'Items/add', // Change to your actual route
             method: 'POST',
@@ -134,7 +134,7 @@ $(document).ready(function () {
                     $('#addNewItemForm')[0].reset();
                     $('#createNewItemDiv').addClass('hidden');
                     console.log(res);
-                    
+
                     lilt();
                 } else {
                     $('#addCustErrMsg').html(`<span class="text-danger">${res.message}</span>`);
@@ -180,36 +180,45 @@ $(document).ready(function () {
 
     //triggers when an item's "edit" icon is clicked
     $("#itemsListTable").on('click', ".editItem", function (e) {
-        e.preventDefault();
+    e.preventDefault();
+
+    const itemId = $(this).attr('id').split("-")[1];
+
+    const itemName = $(`#itemName-${itemId}`).text().trim();
+    const itemCode = $(`#itemCode-${itemId}`).text().trim();
+    const itemPrice = $(`#itemPrice-${itemId}`).text().trim().replace(/,/g, '').split(".")[0];
+    const itemDesc = $(`#itemDesc-${itemId}`).attr("title") || "";
+    console.log(itemDesc);
     
-        var itemId = $(this).attr('id').split("-")[1];
-        var itemDesc = $("#itemDesc-" + itemId).attr('title');
-        var itemName = $("#itemName-" + itemId).html();
-        var itemPrice = $("#itemPrice-" + itemId).html().split(".")[0].replace(",", "");
-        var itemCode = $("#itemCode-" + itemId).html();
-        var itemCategory = $("#itemCategory-" + itemId).html();
-        var itemMnf = $("#itemMnf-" + itemId).html();
+    const categoryText = $(`#itemCategory-${itemId}`).text().trim();
+    const categoryIdMatch = categoryText.match(/\(ID:\s*(\d+)\)/);
+    const categoryId = categoryIdMatch ? categoryIdMatch[1] : "";
     
-        $("#itemIdEdit").val(itemId);
-        $("#itemNameEdit").val(itemName);
-        $("#itemCodeEdit").val(itemCode);
-        $("#itemPriceEdit").val(itemPrice);
-        $("#itemDescriptionEdit").val(itemDesc);
-    
-        // pre-select Category and Manufacturer dropdowns
-        $("#itemCategoryEdit").val(itemCategory);
-        $("#itemMnfEdit").val(itemMnf);
-    
-        $("#editItemFMsg").html("");
-        $("#itemNameEditErr").html("");
-        $("#itemCodeEditErr").html("");
-        $("#itemPriceEditErr").html("");
-        $("#itemCategoryEditErr").html("");
-        $("#itemMnfEditErr").html("");
-    
-        $("#editItemModal").modal('show');
-    });
-    
+    const mnfText = $(`#itemMnf-${itemId}`).text().trim();
+    const mnfIdMatch = mnfText.match(/\(ID:\s*(\d+)\)/);
+    const mnfId = mnfIdMatch ? mnfIdMatch[1] : "";
+    console.log(itemId);
+    console.log(mnfText);
+    console.log(mnfIdMatch);
+
+    // Fill modal form fields
+    $("#itemIdEdit").val(itemId);
+    $("#itemNameEdit").val(itemName);
+    $("#itemCodeEdit").val(itemCode);
+    $("#itemPriceEdit").val(itemPrice);
+    $("#itemDescriptionEdit").val(itemDesc);
+    $("#itemCategoryEdit").val(categoryId);
+    $("#itemMnfEdit").val(mnfId);
+
+    // Clear old error messages
+    $(".errMsg").html("");
+    $("#editItemFMsg").html("");
+
+    // Show modal
+    $("#editItemModal").modal('show');
+});
+
+
     $("#editItemSubmit").click(function () {
         var itemName = $("#itemNameEdit").val();
         var itemPrice = $("#itemPriceEdit").val();
@@ -218,19 +227,19 @@ $(document).ready(function () {
         var itemCode = $("#itemCodeEdit").val();
         var itemCategory = $("#itemCategoryEdit").val();
         var itemMnf = $("#itemMnfEdit").val();
-    
+
         let hasError = false;
-    
+
         if (!itemName) { $("#itemNameEditErr").html("Item name cannot be empty"); hasError = true; }
         if (!itemPrice) { $("#itemPriceEditErr").html("Item price cannot be empty"); hasError = true; }
         if (!itemCategory) { $("#itemCategoryEditErr").html("Please select a category"); hasError = true; }
         if (!itemMnf) { $("#itemMnfEditErr").html("Please select a manufacturer"); hasError = true; }
         if (!itemId) { $("#editItemFMsg").html("Unknown item"); hasError = true; }
-    
+
         if (hasError) return;
-    
+
         $("#editItemFMsg").css('color', 'black').html("<i class='" + spinnerClass + "'></i> Processing your request....");
-    
+
         $.ajax({
             method: "POST",
             url: appRoot + "items/edit",
@@ -242,15 +251,15 @@ $(document).ready(function () {
         }).done(function (returnedData) {
             if (returnedData.status === 1) {
                 $("#editItemFMsg").css('color', 'green').html("Item successfully updated");
-    
+
                 setTimeout(function () {
                     $("#editItemModal").modal('hide');
                 }, 1000);
-    
+
                 lilt();
             } else {
                 $("#editItemFMsg").css('color', 'red').html(returnedData.msg || "Validation failed");
-    
+
                 if (returnedData.itemName) $("#itemNameEditErr").html(returnedData.itemName);
                 if (returnedData.itemCode) $("#itemCodeEditErr").html(returnedData.itemCode);
                 if (returnedData.itemPrice) $("#itemPriceEditErr").html(returnedData.itemPrice);
@@ -261,7 +270,7 @@ $(document).ready(function () {
             $("#editItemFMsg").css('color', 'red').html("Unable to process your request. Please try again.");
         });
     });
-    
+
 
     //trigers the modal to update stock
     $("#itemsListTable").on('click', '.updateStock', function () {
@@ -416,24 +425,24 @@ function lilt(url) {
     var orderFormat = $("#itemsListSortBy").val().split("-")[1];
     var limit = $("#itemsListPerPage").val();
 
-
     $.ajax({
         type: 'get',
-        url: url ? url : appRoot + "items/lilt/",
+        url: url ? url : appRoot + "items/lilt/1", // force page 1 if none given
         data: { orderBy: orderBy, orderFormat: orderFormat, limit: limit },
 
         success: function (returnedData) {
             hideFlashMsg();
-            $("#itemsListTable").html(returnedData.itemsListTable);
+            $("#itemsListTable").html(returnedData.itemsListTable); // <-- this ID must exist
         },
 
         error: function () {
-
+            console.error("Failed to load items.");
         }
     });
 
     return false;
 }
+
 
 
 /**

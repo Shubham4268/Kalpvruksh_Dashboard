@@ -36,37 +36,40 @@
                             <tr>
                                 <input type="hidden" value="<?= $get->id ?>" class="curItemId">
                                 <th class="itemSN"><?= $sn ?>.</th>
-                                <td><span id="itemName-<?= $get->id ?>"><?= $get->name ?></span></td>
-                                <td><span id="itemCode-<?= $get->id ?>"><?= $get->code ?></span></td>
+
+                                <td><a class="pointer vil" title="Click to view label"><span id="itemName-<?= $get->id ?>"><?= htmlspecialchars($get->name) ?></span></a></td>
+
+                                <td><span id="itemCode-<?= $get->id ?>"><?= htmlspecialchars($get->code) ?></span></td>
+
                                 <td>
                                     <span id="itemCategory-<?= $get->id ?>">
-                                        <?= $get->category_name ?? 'N/A' ?>
+                                        <?= htmlspecialchars($get->category_name) ?> (ID: <?= htmlspecialchars($get->categoryId) ?>)
                                     </span>
                                 </td>
+
                                 <td>
                                     <span id="itemMnf-<?= $get->id ?>">
-                                        <?= $get->manufacturer_name ?? 'N/A' ?>
+                                        <?= htmlspecialchars($get->manufacturer_name) ?> (ID: <?= htmlspecialchars($get->mnfId) ?>)
                                     </span>
                                 </td>
 
-                                <td><span><?= $get->adminName ?? 'N/A' ?></span></td>
+                                <td><span><?= htmlspecialchars($get->adminName ?? 'N/A') ?></span></td>
 
                                 <td>
-                                    <span id="itemDesc-<?= $get->id ?>" data-toggle="tooltip" title="<?= $get->description ?>" data-placement="auto">
-                                        <?= word_limiter($get->description, 15) ?>
+                                    <span id="itemDesc-<?= $get->id ?>" data-toggle="tooltip" title="<?= htmlspecialchars($get->description) ?>" data-placement="auto">
+                                        <?= word_limiter(htmlspecialchars($get->description), 15) ?>
                                     </span>
                                 </td>
 
                                 <td class="<?= $get->quantity <= 10 ? 'bg-danger' : ($get->quantity <= 25 ? 'bg-warning' : '') ?>">
-                                    <span id="itemQuantity-<?= $get->id ?>"><?= $get->quantity ?></span>
+                                    <span id="itemQuantity-<?= $get->id ?>"><?= htmlspecialchars($get->quantity) ?></span>
                                 </td>
 
                                 <td>&#8377;<span id="itemPrice-<?= $get->id ?>"><?= number_format($get->unitPrice, 2) ?></span></td>
 
                                 <td><?= $this->genmod->gettablecol('transactions', 'SUM(quantity)', 'itemCode', $get->code) ?></td>
-                                <td>
-                                    &#8377;<?= number_format((float)($this->genmod->gettablecol('transactions', 'SUM(totalPrice)', 'itemCode', $get->code) ?? 0), 2) ?>
-                                </td>
+
+                                <td>&#8377;<?= number_format((float)($this->genmod->gettablecol('transactions', 'SUM(totalPrice)', 'itemCode', $get->code) ?? 0), 2) ?></td>
 
                                 <td><a class="pointer updateStock" id="stock-<?= $get->id ?>">Update Quantity</a></td>
 
@@ -75,9 +78,10 @@
                                 </td>
 
                                 <td class="text-center">
-                                    <i class="fa fa-trash text-danger delItem pointer"></i>
+                                    <i class="fa fa-trash text-danger delItem pointer" id="delete-<?= $get->id ?>"></i>
                                 </td>
                             </tr>
+
                             <?php $sn++; ?>
                         <?php endforeach; ?>
                     </tbody>

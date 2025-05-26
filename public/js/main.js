@@ -2,137 +2,145 @@
 var appRoot = setAppRoot("MiniIMS/Kalpvruksh_Dashboard", "");
 var spinnerClass = 'fa fa-spinner faa-spin animated';
 
-$(document).ready(function(){
+$(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
-    
+
     //get total amount earned on current day(on page load)
     totalEarnedToday();
-    
-    
+
+
     //to view transaction receipt
-    $("#transListTable").on('click', '.vtr', function(){
+    $("#transListTable").on('click', '.vtr', function () {
         vtr_(this);
     });
-    
-    
+
+    $("#itemsListTable").on('click', '.vil', function () {
+        vil_(this);
+    });
+
+
     //To validate form fields
-    $('form').on('change', '.checkField', function(){
-        
+    $('form').on('change', '.checkField', function () {
+
         //set the id of the span any error will be displayed
         //It's usually the id of the form field plus the string "Err"
-        var errSpan = "#"+$(this).attr('id')+"Err";
-        
-        if($(this).val()){
+        var errSpan = "#" + $(this).attr('id') + "Err";
+
+        if ($(this).val()) {
             $(errSpan).html('');
         }
 
-        else{
+        else {
             $(errSpan).html('required');
         }
     });
-    
-    
-    
+
+
+
     //to print receipt
-    $("#transReceiptModal").on('click', '.ptr', function(){
+    $("#transReceiptModal").on('click', '.ptr', function () {
         ptr_();
     });
-	
-	
+
+    //to print item label
+    $("#itemLabelModal").on('click', '.pil', function () {
+        pil_();
+    });
+
     //when the close button on the login modal is clicked
-    $(".closeLogInModal").click(function(){
+    $(".closeLogInModal").click(function () {
         //redirect to landing page
         window.location.href = appRoot;
     });
-    
-    
-    
+
+
+
     //WHEN THE SUBMIT BUTTON ON THE LOG IN MODAL IS CLICKED
-    $("#loginModalSubmit").click(function(e){
+    $("#loginModalSubmit").click(function (e) {
         e.preventDefault();
-        
+
         var email = $("#logInModalEmail").val();
         var password = $("#logInModalPassword").val();
-       
-       if(!email || !password){
-           //display error message
-           $("#logInModalFMsg").css('color', 'red').html("Please enter both your email and password");
-           return;
-       }
-       
-       
-       //display progress message
-       $("#logInModalFMsg").css('color', 'black').html("Authenticating. Please wait...");
-       
-       
-       //call function to handle log in and get the returned data through a callback
-       handleLogin(email, password, function(returnedData){
-           if(returnedData.status === 1){
+
+        if (!email || !password) {
+            //display error message
+            $("#logInModalFMsg").css('color', 'red').html("Please enter both your email and password");
+            return;
+        }
+
+
+        //display progress message
+        $("#logInModalFMsg").css('color', 'black').html("Authenticating. Please wait...");
+
+
+        //call function to handle log in and get the returned data through a callback
+        handleLogin(email, password, function (returnedData) {
+            if (returnedData.status === 1) {
                 $("#logInModalFMsg").css('color', 'green').html(returnedData.msg);
 
                 //reload current page
-                setTimeout(function(){
+                setTimeout(function () {
                     window.location.reload();
                 }, 1000);
             }
 
-            else{
+            else {
                 //display error message
                 $("#logInModalFMsg").css('color', 'red').html(returnedData.msg);
             }
-       });
-       
+        });
+
     });
-    
-    
-    
+
+
+
     //TRIGGER FILE DIALOG WHEN BUTTON IS CLICKED
-    $("#importdb").click(function(e){
+    $("#importdb").click(function (e) {
         e.preventDefault();
-        
+
         $("#selecteddbfile").click();
     });
-    
-    
-    
-    
-    $("#selecteddbfile").change(function(e){
+
+
+
+
+    $("#selecteddbfile").change(function (e) {
         e.preventDefault();
-        
+
         var file = $("#selecteddbfile").get(0).files[0];
-        
-        if(file){
+
+        if (file) {
             var formData = new FormData();
-            
+
             formData.append('dbfile', file);
-            
+
             $("#dbFileMsg").css('color', 'black').html("Importing database");
-            
+
             $.ajax({
-                url: appRoot+"misc/importdb",
+                url: appRoot + "misc/importdb",
                 method: "POST",
                 data: formData,
                 cache: false,
                 processData: false,
                 contentType: false
-            }).done(function(rd){
+            }).done(function (rd) {
                 //remove the file from the input
                 $("#selecteddbfile").val("");
-                
-                if(rd.status === 1){
+
+                if (rd.status === 1) {
                     //display success message
                     $("#dbFileMsg").css('color', 'green').html("Database successfully imported");
-                    
+
                     //clear the success msg after a while
-                    setTimeout(function(){$("#dbFileMsg").html("");}, 3000);
+                    setTimeout(function () { $("#dbFileMsg").html(""); }, 3000);
                 }
-                
-                else{
+
+                else {
                     //display error message
                     $("#dbFileMsg").css('color', 'red').html(rd.msg);
                 }
-            }).fail(function(){
-                
+            }).fail(function () {
+
             });
         }
     });
@@ -143,14 +151,28 @@ $(document).ready(function(){
  * Print transaction receipt (from the customer's transaction history page)
  * @returns {undefined}
  */
-function ptr_(){
-	//change the font-size
-    $("#transReceiptToPrint").css({fontSize:'8px'});
-	
+function ptr_() {
+    //change the font-size
+    $("#transReceiptToPrint").css({ fontSize: '8px' });
+
     window.print();//trigger the print dialog
-	
+
     $("#transReceiptModal").modal('hide');//dismiss modal
 }
+
+/**
+ * Print item label (from the items list page)
+ * @returns {undefined}
+ */
+function pil_() {
+    //change the font-size
+    $("#itemLabelToPrint").css({ fontSize: '8px' });
+
+    window.print();//trigger the print dialog
+
+    $("#itemLabelModal").modal('hide');//dismiss modal
+}
+
 
 /**
  * Change the class name of elements
@@ -158,19 +180,19 @@ function ptr_(){
  * @param {type} newClassName
  * @returns {String}
  */
-function changeClassName(elementId, newClassName){
-    
+function changeClassName(elementId, newClassName) {
+
     //just change value if it's a single element
-    if(typeof(elementId) === "string"){
-        $("#"+elementId).attr('class', newClassName);
+    if (typeof (elementId) === "string") {
+        $("#" + elementId).attr('class', newClassName);
     }
-    
+
     //loop through if it's an array
-    else{
+    else {
         var i;
-    
-        for(i in elementId){
-            $("#"+elementId[i]).attr('class', newClassName);
+
+        for (i in elementId) {
+            $("#" + elementId[i]).attr('class', newClassName);
         }
     }
     return "";
@@ -183,22 +205,22 @@ function changeClassName(elementId, newClassName){
  * @param {type} newValue
  * @returns {String}
  */
-function changeInnerHTML(elementId, newValue){
+function changeInnerHTML(elementId, newValue) {
     //just change value if it's a single element
-    if(typeof(elementId) === "string"){
-        $("#"+elementId).html(newValue);
+    if (typeof (elementId) === "string") {
+        $("#" + elementId).html(newValue);
     }
-    
+
     //loop through if it's an array
-    else{
+    else {
         var i;
-    
-        for(i in elementId){
-            $("#"+elementId[i]).html(newValue);
+
+        for (i in elementId) {
+            $("#" + elementId[i]).html(newValue);
         }
     }
-    
-    
+
+
     return "";
 }
 
@@ -209,19 +231,19 @@ function changeInnerHTML(elementId, newValue){
  * @param {type} newValue
  * @returns {String}
  */
-function changeElementValue(elementId, newValue){
-    
+function changeElementValue(elementId, newValue) {
+
     //just change value if it's a single element i.e. if elementId passed to function is not an array
-    if(typeof(elementId) === "string"){
-        $("#"+elementId).val(newValue);
+    if (typeof (elementId) === "string") {
+        $("#" + elementId).val(newValue);
     }
-    
+
     //loop through if it's an array
-    else{
+    else {
         var i;
-    
-        for(i in elementId){
-            $("#"+elementId[i]).val(newValue);
+
+        for (i in elementId) {
+            $("#" + elementId[i]).val(newValue);
         }
     }
     return "";
@@ -233,11 +255,11 @@ function changeElementValue(elementId, newValue){
  * @param {type} pageName
  * @returns {undefined}
  */
-function loadPage(urlToLoad){
+function loadPage(urlToLoad) {
     $.ajax({
         type: "GET",
-        url: appRoot+urlToLoad,
-        success: function(returnedData){
+        url: appRoot + urlToLoad,
+        success: function (returnedData) {
             document.getElementById('pageContent').innerHTML = returnedData.pageContent;
             document.getElementById('pageTitle').innerHTML = returnedData.pageTitle;
             //window.history.pushState("", "", "");
@@ -254,39 +276,39 @@ function loadPage(urlToLoad){
  * @returns {Array|formChanges.changed}
  */
 function formChanges(form) {
-    if (typeof(form) === "string"){
+    if (typeof (form) === "string") {
         form = document.getElementById(form);
     }
-    
-    if (!form || !form.nodeName || form.nodeName.toLowerCase() !== "form"){
+
+    if (!form || !form.nodeName || form.nodeName.toLowerCase() !== "form") {
         return null;
     }
-    
+
     var changed = [], n, c, def, o, ol, opt;
-    
+
     for (var e = 0, el = form.elements.length; e < el; e++) {
         n = form.elements[e];
         c = false;
-        
+
         switch (n.nodeName.toLowerCase()) {
 
             // select boxes
             case "select":
                 def = 0;
-                
+
                 for (o = 0, ol = n.options.length; o < ol; o++) {
                     opt = n.options[o];
                     c = c || (opt.selected !== opt.defaultSelected);
-                    if (opt.defaultSelected){
+                    if (opt.defaultSelected) {
                         def = o;
                     }
                 }
-                
-                if (c && !n.multiple){
+
+                if (c && !n.multiple) {
                     c = (def !== n.selectedIndex);
                 }
                 break;
-                
+
             //input/textarea
             case "textarea":
             case "input":
@@ -294,32 +316,32 @@ function formChanges(form) {
                 switch (n.type.toLowerCase()) {
                     case "checkbox":
                     case "radio":
-                    
-                    // checkbox / radio
-                    c = (n.checked !== n.defaultChecked);
-                    break;
-                    
+
+                        // checkbox / radio
+                        c = (n.checked !== n.defaultChecked);
+                        break;
+
                     default:
-                    // standard values
-                    c = (n.value !== n.defaultValue);
-                    break;
+                        // standard values
+                        c = (n.value !== n.defaultValue);
+                        break;
                 }
-                
+
                 break;
         }
 
-        if (c){
+        if (c) {
             changed.push(n);
         }
     }
-    
-    
+
+
     //return true or false based on the length of variable "changed"
-    if(changed.length > 0){
+    if (changed.length > 0) {
         return true;
     }
-    
-    else{
+
+    else {
         return false;
     }
 }
@@ -333,15 +355,15 @@ function formChanges(form) {
  * @param {type} time
  * @returns {undefined}
  */
-function displayFlashMsg(msg, iconClassName, color, time){
+function displayFlashMsg(msg, iconClassName, color, time) {
     changeClassName('flashMsgIcon', iconClassName);//set spinner class name
     $("#flashMsg").css('color', color);//change font color
     changeInnerHTML('flashMsg', msg);//set message to display
     $("#flashMsgModal").modal('show');//display modal
-    
+
     //hide the modal after a specified time if time is specified
-    if(time){
-        setTimeout(function(){$("#flashMsgModal").modal('hide');}, time);
+    if (time) {
+        setTimeout(function () { $("#flashMsgModal").modal('hide'); }, time);
     }
 }
 
@@ -350,7 +372,7 @@ function displayFlashMsg(msg, iconClassName, color, time){
  * 
  * @returns {undefined}
  */
-function hideFlashMsg(){
+function hideFlashMsg() {
     changeClassName('flashMsgIcon', "");//set spinner class name
     $("#flashMsg").css('color', '');//change font color
     changeInnerHTML('flashMsg', "");//set message to display
@@ -366,14 +388,14 @@ function hideFlashMsg(){
  * @param {type} time
  * @returns {undefined}
  */
-function changeFlashMsgContent(msg, iconClassName, color, time){
+function changeFlashMsgContent(msg, iconClassName, color, time) {
     changeClassName('flashMsgIcon', iconClassName);//set spinner class name
     $("#flashMsg").css('color', color);//change font color
     changeInnerHTML('flashMsg', msg);//set message to display
-    
+
     //hide the modal after a specified time if time is specified
-    if(time){
-        setTimeout(function(){$("#flashMsgModal").modal('hide');}, time);
+    if (time) {
+        setTimeout(function () { $("#flashMsgModal").modal('hide'); }, time);
     }
 }
 
@@ -382,8 +404,8 @@ function changeFlashMsgContent(msg, iconClassName, color, time){
  * To make the class of the current page "menu name" as active
  * @returns {undefined}
  */
-function tc_(elemId){
-    $("#"+elemId).attr("class", "active");
+function tc_(elemId) {
+    $("#" + elemId).attr("class", "active");
 }
 
 
@@ -393,8 +415,8 @@ function tc_(elemId){
  * @param {type} elementId
  * @returns {undefined}
  */
-function numOnly(value, elementId){
-    $("#"+elementId).val(value.replace(/\D+/g, ""));
+function numOnly(value, elementId) {
+    $("#" + elementId).val(value.replace(/\D+/g, ""));
 }
 
 
@@ -404,7 +426,7 @@ function numOnly(value, elementId){
  * @param {type} intervalObj
  * @returns {undefined}
  */
-function stopInterval(intervalObj){
+function stopInterval(intervalObj) {
     clearInterval(intervalObj);
 }
 
@@ -414,9 +436,9 @@ function stopInterval(intervalObj){
  * @param {type} length
  * @returns {String}
  */
-function randomString(length){
+function randomString(length) {
     var rand = Math.random().toString(36).slice(2).substring(0, length);
-    
+
     return rand;
 }
 
@@ -427,28 +449,54 @@ function randomString(length){
  * @param {type} elem
  * @returns {undefined}
  */
-function vtr_(elem){
+function vtr_(elem) {
     var ref = elem.innerHTML;
-    
-    if(ref){
+
+    if (ref) {
         //show the loading icon
         $("#transReceipt").html("<i class='fa fa-spinner faa-spin animated'></i> Loading receipt");
-        
+
         //show modal
         $("#transReceiptModal").modal('show');
-        
+
         //make server request
         $.ajax({
-            url: appRoot+"transactions/vtr_",
+            url: appRoot + "transactions/vtr_",
             type: "post",
-            data: {ref:ref},
-            success: function(returnedData){
-                if(returnedData.status === 1){
+            data: { ref: ref },
+            success: function (returnedData) {
+                if (returnedData.status === 1) {
                     $("#transReceipt").html(returnedData.transReceipt);
                 }
-                
-                else{
+
+                else {
                     $("#transReceipt").html("Transaction not found");
+                }
+            }
+        });
+    }
+}
+
+/**
+ * vil_ = "View Item Label"
+ * @param {HTMLElement} elem
+ */
+function vil_(elem) {
+    var itemName = elem.textContent || elem.innerText;
+    console.log("Item name sent:", itemName);
+    if (itemName) {
+        $("#itemLabel").html("<i class='fa fa-spinner faa-spin animated'></i> Loading label...");
+        $("#itemLabelModal").modal('show');
+
+        $.ajax({
+            url: appRoot + "items/vil_",
+            type: "post",
+            data: { name: itemName },
+            success: function (data) {
+                if (data.status === 1) {
+                    $("#itemLabel").html(data.labelHtml);
+                } else {
+                    $("#itemLabel").html("Label not found");
                 }
             }
         });
@@ -461,17 +509,17 @@ function vtr_(elem){
  * drm = "Dismiss receipt modal"
  * @returns {undefined}
  */
-function drm_(){
+function drm_() {
     $("#transReceiptModal").modal("hide");
 }
 
 
 
-function totalEarnedToday(){
+function totalEarnedToday() {
     $.ajax({
-        method:"POST",
-        url: appRoot+"misc/totalearnedtoday"
-    }).done(function(returnedData){
+        method: "POST",
+        url: appRoot + "misc/totalearnedtoday"
+    }).done(function (returnedData) {
         //paste the returnedData on the navbar to show total amount earned on current day
         $("#totalEarnedToday").html(returnedData.totalEarnedToday);
     });
@@ -485,13 +533,13 @@ function totalEarnedToday(){
  * @param {type} errorElementId
  * @returns {undefined}
  */
-function checkField(value, errorElementId){
-    if(value){
-        $("#"+errorElementId).html('');
+function checkField(value, errorElementId) {
+    if (value) {
+        $("#" + errorElementId).html('');
     }
-    
-    else{
-        $("#"+errorElementId).html('required');
+
+    else {
+        $("#" + errorElementId).html('required');
     }
 }
 
@@ -504,34 +552,34 @@ function checkField(value, errorElementId){
  * @param {type} functionToCall
  * @returns {undefined}
  */
-function checkDocumentVisibility(functionToCall){
+function checkDocumentVisibility(functionToCall) {
     var hidden = "hidden";
-    
+
     //detect if page has focus and check login status if it does
-    if(hidden in document){//for browsers that support visibility API
+    if (hidden in document) {//for browsers that support visibility API
         $(document).on("visibilitychange", functionToCall);
     }
-    
-    else if ((hidden = "mozHidden") in document){
+
+    else if ((hidden = "mozHidden") in document) {
         document.addEventListener("mozvisibilitychange", functionToCall);
     }
 
-    else if ((hidden = "webkitHidden") in document){
+    else if ((hidden = "webkitHidden") in document) {
         document.addEventListener("webkitvisibilitychange", functionToCall);
     }
 
-    else if ((hidden = "msHidden") in document){
+    else if ((hidden = "msHidden") in document) {
         document.addEventListener("msvisibilitychange", functionToCall);
     }
 
     // IE 9 and lower:
-    else if ("onfocusout" in document){
+    else if ("onfocusout" in document) {
         document.onfocusin = document.onfocusout = functionToCall;
     }
 
     // All others:
-    else{
-      window.onpageshow = window.onpagehide = window.onfocus = window.onblur = functionToCall;
+    else {
+        window.onpageshow = window.onpagehide = window.onfocus = window.onblur = functionToCall;
     }
 }
 
@@ -540,21 +588,21 @@ function checkDocumentVisibility(functionToCall){
  * Check user's log in status (when page has focus) and trigger login modal if user is not logged in
  * @returns {undefined}
  */
-function checkLogin(){
-    if(document.hidden || document.onfocusout || window.onpagehide || window.onblur){
+function checkLogin() {
+    if (document.hidden || document.onfocusout || window.onpagehide || window.onblur) {
         console.log("Window has lost focus");
     }
 
-    else{//if window has focus
+    else {//if window has focus
         $.ajax({
-            url: appRoot+"access/css",
+            url: appRoot + "access/css",
             method: "GET"
-        }).done(function(returnedData){
+        }).done(function (returnedData) {
             //if 0 is returned as status, (meaning user's session has expired), trigger the modal to allow user to log in)
-            if(returnedData.status === 0){
+            if (returnedData.status === 0) {
                 //launch the login/signup modal
                 $("#logInModalFMsg").css('color', 'red').html("Your session has expired. Please log in to continue");
-                
+
                 $("#logInModal").modal("show");
             }
         });
@@ -570,33 +618,33 @@ function checkLogin(){
  * @param {type} callback function to callback after execution
  * @returns {undefined}
  */
-function handleLogin(email, password, callback){
+function handleLogin(email, password, callback) {
     console.log(appRoot);
-    
+
     var jsonToReturn = "";
-    $.ajax(appRoot+"/access/login", {
+    $.ajax(appRoot + "/access/login", {
         method: "POST",
-        data: {email:email, password:password}
-    }).done(function(returnedData){
-        if(returnedData.status === 1){
-            jsonToReturn = {status:1, msg:"Authenticated..."};
+        data: { email: email, password: password }
+    }).done(function (returnedData) {
+        if (returnedData.status === 1) {
+            jsonToReturn = { status: 1, msg: "Authenticated..." };
         }
 
-        else{
+        else {
             //display error messages
-            jsonToReturn = {status:0, msg:"Invalid email/password combination"};
+            jsonToReturn = { status: 0, msg: "Invalid email/password combination" };
         }
-		
-		typeof(callback) === "function" ? callback(jsonToReturn) : "";
-		
-    }).fail(function(xhr){
+
+        typeof (callback) === "function" ? callback(jsonToReturn) : "";
+
+    }).fail(function (xhr) {
         //set error message based on the internet connectivity of the user
-        var msg = xhr.status+' '+xhr.statusText;
-        
+        var msg = xhr.status + ' ' + xhr.statusText;
+
         //display error messages
-        jsonToReturn = {status:0, msg:msg};
-		
-        typeof(callback) === "function" ? callback(jsonToReturn) : "";
+        jsonToReturn = { status: 0, msg: msg };
+
+        typeof (callback) === "function" ? callback(jsonToReturn) : "";
     });
 }
 
@@ -609,18 +657,18 @@ function handleLogin(email, password, callback){
  * @param {bool} changeFlashContent whether to display a new flash message or change the content if one is displayed
  * @returns {undefined}
  */
-function checkBrowserOnline(changeFlashContent){
-    if((!navigator.onLine) && (appRoot.search('localhost') === -1)){
-        changeFlashContent ? 
-            changeFlashMsgContent('Network Error! Please check your internet connection and try again', '', 'red', '', false) 
-            : 
+function checkBrowserOnline(changeFlashContent) {
+    if ((!navigator.onLine) && (appRoot.search('localhost') === -1)) {
+        changeFlashContent ?
+            changeFlashMsgContent('Network Error! Please check your internet connection and try again', '', 'red', '', false)
+            :
             displayFlashMsg('Network Error! Please check your internet connection and try again', '', 'red', '', false);
     }
-    
-    else{
-        changeFlashContent ? 
-            changeFlashMsgContent('Oops! Bug? Unable to process your request. Please try again or report error', '', 'red', '', false) 
-            : 
+
+    else {
+        changeFlashContent ?
+            changeFlashMsgContent('Oops! Bug? Unable to process your request. Please try again or report error', '', 'red', '', false)
+            :
             displayFlashMsg('Oops! Bug? Unable to process your request. Please try again or report error', '', 'red', '', false);
     }
 }
@@ -638,17 +686,17 @@ function setAppRoot(devFolderName, prodFolderName) {
     // Ensure trailing slashes
     var devFolder = devFolderName ? devFolderName.replace(/\/$/, '') + "/" : "";
     var prodFolder = prodFolderName ? prodFolderName.replace(/\/$/, '') + "/" : "";
-    
-    console.log("hostname",hostname);
-    console.log("devFolder",devFolder);
-    console.log("prodFolder",prodFolder);
-    
-    
+
+    console.log("hostname", hostname);
+    console.log("devFolder", devFolder);
+    console.log("prodFolder", prodFolder);
+
+
     var baseURL;
 
     if (
-        hostname.includes("localhost") || 
-        hostname.startsWith("192.168.") || 
+        hostname.includes("localhost") ||
+        hostname.startsWith("192.168.") ||
         hostname.startsWith("127.0.0.")
     ) {
         baseURL = window.location.origin + "/" + devFolder;
@@ -663,28 +711,28 @@ function setAppRoot(devFolderName, prodFolderName) {
 
 
 
-function inArray(value, array){
-    for(let i = 0; i < array.length; i++){
-        if(array[i].trim() === value.trim()){
+function inArray(value, array) {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i].trim() === value.trim()) {
             return true;
         }
     }
-    
+
     return false;
 }
 
 
 
-function arrayUnique(array){
+function arrayUnique(array) {
     var newArray = [];
-    
-    for(let i = 0; i < array.length; i++){
-        if(inArray(array[i].trim(), newArray)){
+
+    for (let i = 0; i < array.length; i++) {
+        if (inArray(array[i].trim(), newArray)) {
             continue;
         }
 
         newArray.push(array[i].trim());
     }
-    
+
     return newArray;
 }

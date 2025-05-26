@@ -15,8 +15,13 @@ defined('BASEPATH') or exit('');
                     <div class="col-sm-3 form-inline form-group-sm">
                         <label for="categoryListPerPage">Show</label>
                         <select id="categoryListPerPage" class="form-control">
+                            <option value="1">1</option>
+                            <option value="5">5</option>
                             <option value="10" selected>10</option>
+                            <option value="15">15</option>
                             <option value="20">20</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
                         </select>

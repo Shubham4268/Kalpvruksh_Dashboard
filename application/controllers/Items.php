@@ -31,6 +31,26 @@ class Items extends CI_Controller
     $this->load->view('main', $data);
   }
 
+  public function vil_(){
+    $this->genlib->ajaxOnly();
+
+    $itemName = $this->input->post('name');
+    $item = $this->item->getItemByName($itemName); // You need to define this in the model
+
+    if($item){
+        $labelHtml = $this->load->view('items/item_label', ['item' => $item], TRUE);
+
+        $json = [
+            'status' => 1,
+            'labelHtml' => $labelHtml
+        ];
+    } else {
+        $json = ['status' => 0];
+    }
+
+    $this->output->set_content_type('application/json')->set_output(json_encode($json));
+}
+
 
   /*
     ********************************************************************************************************************************

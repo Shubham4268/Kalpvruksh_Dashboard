@@ -271,11 +271,11 @@ defined('BASEPATH') or exit('');
                     <div class="row">
                         <div class="col-sm-6 form-group-sm">
                             <label for="itemCategoryEdit">Category</label>
-                            <select id="itemCategoryEdit" class="form-control checkField">
+                            <select id="itemCategoryEdit" class="form-control checkField" required>
                                 <option value="">Select</option>
                                 <?php foreach ($categories as $cat): ?>
-                                    <option value="<?= $cat->id ?>"><?= $cat->category_name ?></option>
-                                <?php endforeach; ?>
+                                        <option value="<?= $cat->id ?>"><?= $cat->category_name ?> (ID: <?= $cat->id ?>)</option>
+                                    <?php endforeach; ?>
                             </select>
                             <span class="help-block errMsg" id="itemCategoryEditErr"></span>
                         </div>
@@ -285,7 +285,7 @@ defined('BASEPATH') or exit('');
                             <select id="itemMnfEdit" class="form-control checkField">
                                 <option value="">Select</option>
                                 <?php foreach ($manufacturers as $mnf): ?>
-                                    <option value="<?= $mnf->id ?>"><?= $mnf->mnf_name ?></option>
+                                    <option value="<?= $mnf->id ?>"><?= $mnf->mnf_name ?>  (ID: <?= $mnf->id ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="help-block errMsg" id="itemMnfEditErr"></span>

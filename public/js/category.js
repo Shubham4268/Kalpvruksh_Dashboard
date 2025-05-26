@@ -109,10 +109,11 @@ $(document).ready(function () {
 
         const categoryName = $(`#cat_name-${categoryId}`).text().trim();
         const description = $(`#cat_desc-${categoryId}`).text().trim();
+       
         const mnfText = $(`#mnfId-${categoryId}`).text().trim();
         const mnfIdMatch = mnfText.match(/\(ID:\s*(\d+)\)/);
         const mnfId = mnfIdMatch ? mnfIdMatch[1] : "";
-
+        console.log(mnfText);
 
         // Set modal input values
         $("#categoryIdEdit").val(categoryId);
@@ -200,17 +201,14 @@ $(document).ready(function () {
 
 });
 
-
 function loadCategoryList(url) {
-    const sortVal = $("#categoryListSortBy").val().split("-");
-    const orderBy = sortVal[0];
-    const orderFormat = sortVal[1];
-    const limit = $("#categoryListPerPage").val();
-
+    var orderBy = $("#categoryListSortBy").val().split("-")[0];
+    var orderFormat = $("#categoryListSortBy").val().split("-")[1];
+    var limit = $("#categoryListPerPage").val();
 
     $.ajax({
         type: 'get',
-        url: url ? url : appRoot + "Category/loadCategoryList",
+        url: url ? url : appRoot + "Category/loadCategoryList/1",  // force page 1 if no URL
         data: { orderBy: orderBy, orderFormat: orderFormat, limit: limit },
 
         success: function (returnedData) {
@@ -218,11 +216,11 @@ function loadCategoryList(url) {
             $("#categoryListTable").html(returnedData.categoryListTable);
         },
 
-        error: function (xhr, status, error) {
-            console.error("AJAX Error:", status, error);
-            changeFlashMsgContent("Failed to load categories. Try again.", "", "red", "");
+        error: function () {
+            console.error("Failed to load categories.");
         }
     });
 
     return false;
 }
+
